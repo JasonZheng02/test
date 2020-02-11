@@ -9,7 +9,9 @@ def square(x,y,length):
     draw_line(x, y - length, x + length, y - length, s, c)
     draw_line(x, y - length, x, y, s, c)
     draw_line(x + length, y - length, x + length, y, s, c);
-square(300,300,100)
+
+for x in range(0,100):
+    square(random.randint(-490,490), random.randint(-490,490), random.randint(1,300))
 
 
 display(s)
