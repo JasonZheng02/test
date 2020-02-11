@@ -6,18 +6,11 @@ c = [ 0, 255, 0 ]
 
 def square(x,y,length):
     draw_line(x, y, x + length, y, s, c)
-    draw_line(x + length, y, x + length, y - length, s, c)
     draw_line(x, y - length, x + length, y - length, s, c)
-    draw_line(x, y, x, y - length, s, c)
-
-def square2(x,y,length):
-    draw_line(x, y, x + length, y, s, c)
-    draw_line(x + length, y, x + length, y - length, s, c)
-    draw_line(x + length, y - length, x, y - length, s, c)
     draw_line(x, y - length, x, y, s, c)
 
 square(300,300,100)
-square2(300,300,100)
+
 
 display(s)
 save_ppm(s, 'binary.ppm')
