@@ -1,22 +1,53 @@
 from display import *
 from draw import *
-import random
+from matrix import *
 
-s = new_screen()
-c = [ 0, 255, 0 ]
+screen = new_screen()
+color = [ 0, 0, 0 ]
+matrix = new_matrix(0,0)
+testMatrix = new_matrix(3,3)
+testMatrix2 = new_matrix(3,3)
 
-def square(x,y,length,c):
-    draw_line(x, y, x + length, y, s, c)
-    draw_line(x, y - length, x + length, y - length, s, c)
-    draw_line(x, y - length, x, y, s, c)
-    draw_line(x + length, y - length, x + length, y, s, c);
+#testing matrix functions
+print("identity 3*3 matrix")
+ident(testMatrix)
+print_matrix(testMatrix)
+testMatrix2[0][0] = 2
+testMatrix2[1][1] = 2
+testMatrix2[2][2] = 2
 
-for x in range(0,100):
-    c = [ random.randint(0,255),random.randint(0,255),random.randint(0,255)]
-    square(random.randint(-490,490), random.randint(-490,490), random.randint(1,300), c)
+print("testing matrix multiplication")
+print_matrix(testMatrix2)
+print( "times" )
+print_matrix(testMatrix)
+print( "equals" )
+print_matrix(matrix_mult(testMatrix2, testMatrix))
 
+#drawing
+x = 0
+while x < 4:
+    #stick figure
+    add_edge(matrix, 10 + x,5,0, 55 + x,45,0 )
+    add_edge(matrix, 85 + x,5,0, 55 + x,45,0 )
+    add_edge(matrix, 55 + x,45,0, 55 + x,150,0 )
+    add_edge(matrix, 25 + x,150 + x,0, 85 + x,150 + x,0 )
+    add_edge(matrix, 25 + x,150,0, 25 + x,210,0 )
+    add_edge(matrix, 85 + x,150,0, 85 + x,210,0 )
+    add_edge(matrix, 25 + x,210 + x,0, 85 + x,210 + x,0 )
+    add_edge(matrix, 55 + x,90,0, 20 + x,120,0 )
+    add_edge(matrix, 55 + x,90,0, 90 + x,120,0 )
 
-display(s)
-save_ppm(s, 'binary.ppm')
-save_ppm_ascii(s, 'ascii.ppm')
-save_extension(s, 'img.png')
+    #sword
+    add_edge(matrix, 70 + x,125,0, 93 + x,105,0 )
+    add_edge(matrix, 70 + x,125,0, 115 + x,165,0 )
+    add_edge(matrix, 93 + x,105,0, 138 + x,145,0 )
+    add_edge(matrix, 80 + x,200,0, 115 + x,165,0 )
+    add_edge(matrix, 173 + x,110,0, 138 + x,145,0 )
+    add_edge(matrix, 80 + x,200,0, 430 + x,490,0 )
+    add_edge(matrix, 173 + x,110,0, 420 + x,297,0 )
+    add_edge(matrix, 430 + x,490,0, 420 + x,297,0 )
+
+    x = x + 1
+
+draw_lines( matrix, screen, color )
+display(screen)

@@ -1,62 +1,99 @@
 from display import *
+from matrix import *
+
+
+def draw_lines( matrix, screen, color ):
+    for c in range(0,len(matrix),2):
+        draw_line(matrix[c][0], matrix[c][1], matrix[c+1][0], matrix[c+1][1], screen, color)
+
+def add_edge( matrix, x0, y0, z0, x1, y1, z1 ):
+    add_point(matrix,x0,y0,z0)
+    add_point(matrix,x1,y1,z1)
+
+def add_point( matrix, x, y, z=0 ):
+    matrix.append([x,y,z,1])
+
 
 def draw_line( x0, y0, x1, y1, screen, color ):
-    x0, y0, x1, y1 = int(x0), int(y0), int(x1), int(y1)
-    if (x0 > x1 and y0 > y1):
-        x0, x1, y0, y1 = x1, x0, y1, y0
-    A = y1 - y0
-    B = (x1 - x0) * -1
+
+    #swap points if going right -> left
+    if x0 > x1:
+        xt = x0
+        yt = y0
+        x0 = x1
+        y0 = y1
+        x1 = xt
+        y1 = yt
+
     x = x0
     y = y0
+    A = 2 * (y1 - y0)
+    B = -2 * (x1 - x0)
 
-    if (B == 0):
-        if (x1 > x0):
-            while (x <= x1):
+    #octants 1 and 8
+    if ( abs(x1-x0) >= abs(y1 - y0) ):
+
+        #octant 1
+        if A > 0:
+            d = A + B/2
+
+            while x < x1:
                 plot(screen, color, x, y)
-                x = x + 1
+                if d > 0:
+                    y+= 1
+                    d+= B
+                x+= 1
+                d+= A
+            #end octant 1 while
+            plot(screen, color, x1, y1)
+        #end octant 1
+
+        #octant 8
         else:
-            while (y <= y1):
-                plot(screen, color, x, y)
-                y = y + 1
+            d = A - B/2
 
+            while x < x1:
+                plot(screen, color, x, y)
+                if d < 0:
+                    y-= 1
+                    d-= B
+                x+= 1
+                d+= A
+            #end octant 8 while
+            plot(screen, color, x1, y1)
+        #end octant 8
+    #end octants 1 and 8
+
+    #octants 2 and 7
     else:
-        slope = (A / B) * -1
-        if (slope <= 1 and slope > 0):
-            D = 2 * A + B
-            while (x <= x1):
-                plot(screen, color, x, y)
-                if (D > 0):
-                    y = y + 1
-                    D = D + 2 * B
-                x = x + 1
-                D = D + 2 * A
+        #octant 2
+        if A > 0:
+            d = A/2 + B
 
-        elif (slope > 1):
-            D = A + 2 * B
-            while (y <= y1):
+            while y < y1:
                 plot(screen, color, x, y)
-                if (D < 0):
-                    x = x + 1
-                    D = D + 2 * A
-                y = y + 1
-                D = D + 2 * B
+                if d < 0:
+                    x+= 1
+                    d+= A
+                y+= 1
+                d+= B
+            #end octant 2 while
+            plot(screen, color, x1, y1)
+        #end octant 2
 
-        elif (slope < -1):
-            D = -1 * A + 2 * B
-            while (y <= y1):
-                plot(screen, color, x, y)
-                if (D > 0):
-                    x = x - 1
-                    D = D - 2 * A
-                y = y + 1
-                D = D + 2 * B
-
+        #octant 7
         else:
-            D = 2 * A - B
-            while (x <= x1):
+            d = A/2 - B;
+
+            while y > y1:
                 plot(screen, color, x, y)
-                if (D < 0):
-                    y = y - 1
-                    D = D - 2 * B
-                x = x + 1
-                D = D + 2 * A
+                if d > 0:
+                    x+= 1
+                    d+= A
+                y-= 1
+                d-= B
+            #end octant 7 while
+            plot(screen, color, x1, y1)
+        #end octant 7
+    #end octants 2 and 7
+#end draw_line
