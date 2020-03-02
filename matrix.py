@@ -9,34 +9,90 @@ z0  z1  ... zn
 """
 import math
 
+def make_translate( x, y, z ):
+    transform = new_matrix()
+    ident(transform)
+    transform[3][0] = x
+    transform[3][1] = y
+    transform[3][2] = z
+    return transform
+
+def make_scale( x, y, z ):
+    transform = new_matrix()
+    transform[0][0] = x
+    transform[1][1] = y
+    transform[2][2] = z
+    transform[3][3] = 1
+    return transform
+
+def make_rotX( theta ):
+    r = math.radians(theta)
+    transform = new_matrix()
+    ident(transform)
+    transform[1][1] = math.cos(r)
+    transform[2][1] = -math.sin(r)
+    transform[1][2] = math.sin(r)
+    transform[2][2] = math.cos(r)
+    return transform
+
+def make_rotY( theta ):
+    r = math.radians(theta)
+    transform = new_matrix()
+    ident(transform)
+    transform[0][0] = math.cos(r)
+    transform[0][2] = -math.sin(r)
+    transform[2][0] = math.sin(r)
+    transform[2][2] = math.cos(r)
+    return transform
+
+def make_rotZ( theta ):
+    r = math.radians(theta)
+    transform = new_matrix()
+    ident(transform)
+    transform[0][0] = math.cos(r)
+    transform[1][0] = -math.sin(r)
+    transform[0][1] = math.sin(r)
+    transform[1][1] = math.cos(r)
+    return transform
+
 #print the matrix such that it looks like
 #the template in the top comment
 def print_matrix( matrix ):
-    for r in range(len(matrix)):
-        for c in range(len(matrix[0])):
-            print(matrix[r][c]),
-        print("")
-
+    s = ''
+    for r in range( len( matrix[0] ) ):
+        for c in range( len(matrix) ):
+            s+= str(matrix[c][r]) + ' '
+        s+= '\n'
+    print(s)
 
 #turn the paramter matrix into an identity matrix
 #you may assume matrix is square
 def ident( matrix ):
-    for c in range(len(matrix)):
-        for r in range(len(matrix)):
-            if c == r:
+    for r in range( len( matrix[0] ) ):
+        for c in range( len(matrix) ):
+            if r == c:
                 matrix[c][r] = 1
+            else:
+                matrix[c][r] = 0
 
 #multiply m1 by m2, modifying m2 to be the product
 #m1 * m2 -> m2
 def matrix_mult( m1, m2 ):
-    product = new_matrix(len(m1),len(m1[0]))
-    for r in range(len(m1)):
-        for c in range(len(m2[0])):
-            for i in range(len(m2)):
-                product[r][c] = product[r][c] + m1[r][i] * m2[i][c]
-    return product
 
-def new_matrix(rows, cols):
+    point = 0
+    for row in m2:
+        #get a copy of the next point
+        tmp = row[:]
+
+        for r in range(4):
+            m2[point][r] = (m1[0][r] * tmp[0] +
+                            m1[1][r] * tmp[1] +
+                            m1[2][r] * tmp[2] +
+                            m1[3][r] * tmp[3])
+        point+= 1
+
+
+def new_matrix(rows = 4, cols = 4):
     m = []
     for c in range( cols ):
         m.append( [] )
