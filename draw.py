@@ -1,6 +1,30 @@
 from display import *
 from matrix import *
+import math
 
+
+def add_circle( points, cx, cy, cz, r, step ):
+    t = 0
+    while t <= 1:
+        add_point(points,
+                  r * math.cos(2 * math.pi * t) + cx,
+                  r * math.sin(2 * math.pi * t) + cy,
+                  cz)
+        t = t + step
+
+def add_curve( points, x0, y0, x1, y1, x2, y2, x3, y3, step, curve_type ):
+    t = 0
+    x = x0
+    y = y0
+    while t <= 1:
+        if curve_type == "hermite":
+            x = (2*t*t*t - 3*t*t + 1)*x0 + (t*t*t - 2*t*t + t)*x2 + (-2*t*t*t + 3*t*t)*x1 + (t*t*t - t*t)*x3
+            y = (2*t*t*t - 3*t*t + 1)*y0 + (t*t*t - 2*t*t + t)*y2 + (-2*t*t*t + 3*t*t)*y1 + (t*t*t - t*t)*y3
+        if curve_type == "bezier":
+            x = (-x0 + 3*x1 - 3*x2 + x3)*t*t*t + (3*x0 - 6*x1 + 3*x2)*t*t + (-3*x0 + 3*x1)*t + x0
+            y = (-y0 + 3*y1 - 3*y2 + y3)*t*t*t + (3*y0 - 6*y1 + 3*y2)*t*t + (-3*y0 + 3*y1)*t + y0
+        add_point(points, x, y, 0)
+        t = t + step
 
 def draw_lines( matrix, screen, color ):
     if len(matrix) < 2:
@@ -9,10 +33,10 @@ def draw_lines( matrix, screen, color ):
 
     point = 0
     while point < len(matrix) - 1:
-        draw_line( matrix[point][0],
-                   matrix[point][1],
-                   matrix[point+1][0],
-                   matrix[point+1][1],
+        draw_line( int(matrix[point][0]),
+                   int(matrix[point][1]),
+                   int(matrix[point+1][0]),
+                   int(matrix[point+1][1]),
                    screen, color)
         point+= 2
 

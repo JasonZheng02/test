@@ -9,51 +9,58 @@ z0  z1  ... zn
 """
 import math
 
+def make_bezier():
+    pass
+
+def make_hermite():
+    pass
+
+def generate_curve_coefs( p0, p1, p2, p3, t ):
+    pass
+
+
 def make_translate( x, y, z ):
-    transform = new_matrix()
-    ident(transform)
-    transform[3][0] = x
-    transform[3][1] = y
-    transform[3][2] = z
-    return transform
+    t = new_matrix()
+    ident(t)
+    t[3][0] = x
+    t[3][1] = y
+    t[3][2] = z
+    return t
 
 def make_scale( x, y, z ):
-    transform = new_matrix()
-    transform[0][0] = x
-    transform[1][1] = y
-    transform[2][2] = z
-    transform[3][3] = 1
-    return transform
+    t = new_matrix()
+    ident(t)
+    t[0][0] = x
+    t[1][1] = y
+    t[2][2] = z
+    return t
 
 def make_rotX( theta ):
-    r = math.radians(theta)
-    transform = new_matrix()
-    ident(transform)
-    transform[1][1] = math.cos(r)
-    transform[2][1] = -math.sin(r)
-    transform[1][2] = math.sin(r)
-    transform[2][2] = math.cos(r)
-    return transform
+    t = new_matrix()
+    ident(t)
+    t[1][1] = math.cos(theta)
+    t[2][1] = -1 * math.sin(theta)
+    t[1][2] = math.sin(theta)
+    t[2][2] = math.cos(theta)
+    return t
 
 def make_rotY( theta ):
-    r = math.radians(theta)
-    transform = new_matrix()
-    ident(transform)
-    transform[0][0] = math.cos(r)
-    transform[0][2] = -math.sin(r)
-    transform[2][0] = math.sin(r)
-    transform[2][2] = math.cos(r)
-    return transform
+    t = new_matrix()
+    ident(t)
+    t[0][0] = math.cos(theta)
+    t[0][2] = -1 * math.sin(theta)
+    t[2][0] = math.sin(theta)
+    t[2][2] = math.cos(theta)
+    return t
 
 def make_rotZ( theta ):
-    r = math.radians(theta)
-    transform = new_matrix()
-    ident(transform)
-    transform[0][0] = math.cos(r)
-    transform[1][0] = -math.sin(r)
-    transform[0][1] = math.sin(r)
-    transform[1][1] = math.cos(r)
-    return transform
+    t = new_matrix()
+    ident(t)
+    t[0][0] = math.cos(theta)
+    t[1][0] = -1 * math.sin(theta)
+    t[0][1] = math.sin(theta)
+    t[1][1] = math.cos(theta)
+    return t
 
 #print the matrix such that it looks like
 #the template in the top comment

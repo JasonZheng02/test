@@ -8,6 +8,15 @@ The file follows the following format:
      Every command is a single character that takes up a line
      Any command that requires arguments must have those arguments in the second line.
      The commands are as follows:
+
+	 circle: add a circle to the edge matrix -
+	         takes 4 arguments (cx, cy, cz, r)
+	 hermite: add a hermite curve to the edge matrix -
+	          takes 8 arguments (x0, y0, x1, y1, rx0, ry0, rx1, ry1)
+	 bezier: add a bezier curve to the edge matrix -
+	         takes 8 arguments (x0, y0, x1, y1, x2, y2, x3, y3)
+
+
          line: add a line to the edge matrix -
                takes 6 arguemnts (x0, y0, z0, x1, y1, z1)
          ident: set the transform matrix to the identity matrix -
@@ -32,56 +41,82 @@ The file follows the following format:
 
 See the file script for an example of the file format
 """
-def parse_file( fname, points, transform, screen, color ):
-    file = open("script","r")
-    script = file.readlines()
-    x = 0
-    while x < len(script):
-        if script[x] == "line\n":
-            inputs = script[x+1].split()
-            add_edge(points, int(inputs[0]), int(inputs[1]), int(inputs[2]), int(inputs[3]), int(inputs[4]), int(inputs[5]))
+ARG_COMMANDS = [ 'line', 'scale', 'move', 'rotate', 'save', 'circle', 'hermite', 'bezier' ]
 
-        if script[x] == "display\n":
-            clear_screen(screen)
-            draw_lines(points, screen, color)
-            display( screen )
+def parse_file( fname, edges, transform, screen, color ):
 
-        if script[x] == "ident\n":
+    f = open(fname)
+    lines = f.readlines()
+
+    c = 0
+    while c < len(lines):
+        line = lines[c].strip()
+        #print ':' + line + ':'
+
+        if line in ARG_COMMANDS:
+            c+= 1
+            args = lines[c].strip().split(' ')
+
+        if line == 'line':
+            #print 'LINE\t' + str(args)
+
+            add_edge( edges,
+                      float(args[0]), float(args[1]), float(args[2]),
+                      float(args[3]), float(args[4]), float(args[5]) )
+
+        elif line == 'scale':
+            #print 'SCALE\t' + str(args)
+            t = make_scale(float(args[0]), float(args[1]), float(args[2]))
+            matrix_mult(t, transform)
+
+        elif line == 'move':
+            #print 'MOVE\t' + str(args)
+            t = make_translate(float(args[0]), float(args[1]), float(args[2]))
+            matrix_mult(t, transform)
+
+        elif line == 'rotate':
+            #print 'ROTATE\t' + str(args)
+            theta = float(args[1]) * (math.pi / 180)
+
+            if args[0] == 'x':
+                t = make_rotX(theta)
+            elif args[0] == 'y':
+                t = make_rotY(theta)
+            else:
+                t = make_rotZ(theta)
+            matrix_mult(t, transform)
+
+        elif line == 'ident':
             ident(transform)
 
-        if script[x] == "scale\n":
-            inputs = script[x+1].split()
-            scale_Matrix = make_scale(int(inputs[0]), int(inputs[1]), int(inputs[2]))
-            matrix_mult(scale_Matrix, transform)
+        elif line == 'apply':
+            matrix_mult( transform, edges )
 
-        if script[x] == "apply\n":
-            matrix_mult(transform, points)
-            for r in range( len( points[0] ) ):
-                for c in range( len(points) ):
-                    points[c][r] = int(points[c][r])
-
-        if script[x] == "move\n":
-            inputs = script[x+1].split()
-            translation_Matrix = make_translate(int(inputs[0]), int(inputs[1]), int(inputs[2]))
-            matrix_mult(translation_Matrix, transform)
-
-        if script[x] == "rotate\n":
-            inputs = script[x+1].split()
-            if inputs[0] == "x":
-                rot_Matrix = make_rotX(int(inputs[1]))
-            if inputs[0] == "y":
-                rot_Matrix = make_rotY(int(inputs[1]))
-            if inputs[0] == "z":
-                rot_Matrix = make_rotZ(int(inputs[1]))
-            matrix_mult(rot_Matrix, transform)
-
-        if script[x] == "save\n":
-            inputs = script[x+1]
+        elif line == 'display' or line == 'save':
             clear_screen(screen)
-            draw_lines(points, screen, color)
-            save_ppm(screen, inputs[:-1])
+            draw_lines(edges, screen, color)
 
-        if script[x] == "quit\n":
-            pass
-            
-        x = x + 1
+            if line == 'display':
+                display(screen)
+            else:
+                save_extension(screen, args[0])
+
+        elif line == 'circle':
+            add_circle(edges, float(args[0]), float(args[1]), float(args[2]), float(args[3]), 0.001)
+
+        elif line == 'hermite':
+            add_curve(edges,
+                      float(args[0]), float(args[1]),
+                      float(args[2]), float(args[3]),
+                      float(args[4]), float(args[5]),
+                      float(args[6]), float(args[7]),
+                      .001, "hermite")
+
+        elif line == 'bezier':
+            add_curve(edges,
+                      float(args[0]), float(args[1]),
+                      float(args[2]), float(args[3]),
+                      float(args[4]), float(args[5]),
+                      float(args[6]), float(args[7]),
+                      .001, "bezier")
+        c+= 1
