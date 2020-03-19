@@ -1,30 +1,125 @@
 from display import *
 from matrix import *
-import math
 
+  # ====================
+  # add the points for a rectagular prism whose
+  # upper-left corner is (x, y, z) with width,
+  # height and depth dimensions.
+  # ====================
+def add_box( points, x, y, z, width, height, depth ):
+    #front
+    add_edge(points, x, y, z, x + width, y, z)
+    add_edge(points, x, y + height, z, x + width, y + height, z)
+    add_edge(points, x, y, z, x, y + height, z)
+    add_edge(points, x + width, y, z, x + width, y + height, z)
+    #back
+    add_edge(points, x, y, z + depth, x + width, y, z + depth)
+    add_edge(points, x, y + height, z + depth, x + width, y + height, z + depth)
+    add_edge(points, x, y, z + depth, x, y + height, z + depth)
+    add_edge(points, x + width, y, z + depth, x + width, y + height, z + depth)
+    #sides
+    add_edge(points, x, y, z, x, y, z + depth)
+    add_edge(points, x, y + height, z, x, y + height, z + depth)
+    add_edge(points, x + width, y, z, x + width, y, z + depth)
+    add_edge(points, x + width, y + height, z, x + width, y + height, z + depth)
+
+  # ====================
+  # Generates all the points along the surface
+  # of a sphere with center (cx, cy, cz) and
+  # radius r.
+  # Returns a matrix of those points
+  # ====================
+def generate_sphere( points, cx, cy, cz, r, step ):
+    matrix = []
+    rotation = 0
+    circle = 0
+    while rotation <= 1:
+        while circle <= 1:
+            x = r * math.cos(math.pi * circle) + cx
+            y = r * math.sin(math.pi * circle) * math.cos(2 * math.pi * rotation) + cy
+            z = r * math.sin(math.pi * circle) * math.sin(2 * math.pi * rotation) + cz
+            add_point(matrix, x, y, z)
+            circle += step
+        rotation += step
+        circle = 0
+    return matrix
+
+  # ====================
+  # adds all the points for a sphere with center
+  # (cx, cy, cz) and radius r to points
+  # should call generate_sphere to create the
+  # necessary points
+  # ====================
+def add_sphere( points, cx, cy, cz, r, step ):
+    matrix = generate_sphere(points, cx, cy, cz, r, step)
+    for p in matrix:
+        add_edge(points, p[0], p[1], p[2], p[0], p[1], p[2])
+
+  # ====================
+  # Generates all the points along the surface
+  # of a torus with center (cx, cy, cz) and
+  # radii r0 and r1.
+  # Returns a matrix of those points
+  # ====================
+def generate_torus( points, cx, cy, cz, r0, r1, step ):
+    matrix = []
+    rotation = 0
+    circle = 0
+    while rotation <= 1:
+        while circle <= 1:
+            x = math.cos(2 * math.pi * rotation) * (r0 * math.cos(2 * math.pi * circle) + r1) + cx
+            y = r0 * math.sin(2 * math.pi * circle) + cy
+            z = -1 * math.sin(2 * math.pi * rotation) * (r0 * math.cos(2 * math.pi * circle) + r1) + cz
+            add_point(matrix, x, y, z)
+            circle += step
+        rotation += step
+        circle = 0
+    return matrix
+
+  # ====================
+  # adds all the points for a torus with center
+  # (cx, cy, cz) and radii r0, r1 to points
+  # should call generate_torus to create the
+  # necessary points
+  # ====================
+def add_torus( points, cx, cy, cz, r0, r1, step ):
+    matrix = generate_torus(points, cx, cy, cz, r0, r1, step)
+    for p in matrix:
+        add_edge(points, p[0], p[1], p[2], p[0], p[1], p[2])
 
 def add_circle( points, cx, cy, cz, r, step ):
-    t = 0
-    while t <= 1:
-        add_point(points,
-                  r * math.cos(2 * math.pi * t) + cx,
-                  r * math.sin(2 * math.pi * t) + cy,
-                  cz)
-        t = t + step
+    x0 = r + cx
+    y0 = cy
+
+    i = 1
+    while i <= step:
+        t = float(i)/step
+        x1 = r * math.cos(2*math.pi * t) + cx;
+        y1 = r * math.sin(2*math.pi * t) + cy;
+
+        add_edge(points, x0, y0, cz, x1, y1, cz)
+        x0 = x1
+        y0 = y1
+        i+= 1
 
 def add_curve( points, x0, y0, x1, y1, x2, y2, x3, y3, step, curve_type ):
-    t = 0
-    x = x0
-    y = y0
-    while t <= 1:
-        if curve_type == "hermite":
-            x = (2*t*t*t - 3*t*t + 1)*x0 + (t*t*t - 2*t*t + t)*x2 + (-2*t*t*t + 3*t*t)*x1 + (t*t*t - t*t)*x3
-            y = (2*t*t*t - 3*t*t + 1)*y0 + (t*t*t - 2*t*t + t)*y2 + (-2*t*t*t + 3*t*t)*y1 + (t*t*t - t*t)*y3
-        if curve_type == "bezier":
-            x = (-x0 + 3*x1 - 3*x2 + x3)*t*t*t + (3*x0 - 6*x1 + 3*x2)*t*t + (-3*x0 + 3*x1)*t + x0
-            y = (-y0 + 3*y1 - 3*y2 + y3)*t*t*t + (3*y0 - 6*y1 + 3*y2)*t*t + (-3*y0 + 3*y1)*t + y0
-        add_point(points, x, y, 0)
-        t = t + step
+
+    xcoefs = generate_curve_coefs(x0, x1, x2, x3, curve_type)[0]
+    ycoefs = generate_curve_coefs(y0, y1, y2, y3, curve_type)[0]
+
+    i = 1
+    while i <= step:
+        t = float(i)/step
+        x = t * (t * (xcoefs[0] * t + xcoefs[1]) + xcoefs[2]) + xcoefs[3]
+        y = t * (t * (ycoefs[0] * t + ycoefs[1]) + ycoefs[2]) + ycoefs[3]
+        #x = xcoefs[0] * t*t*t + xcoefs[1] * t*t + xcoefs[2] * t + xcoefs[3]
+        #y = ycoefs[0] * t*t*t + ycoefs[1] * t*t + ycoefs[2] * t + ycoefs[3]
+
+        add_edge(points, x0, y0, 0, x, y, 0)
+        x0 = x
+        y0 = y
+        i+= 1
+
 
 def draw_lines( matrix, screen, color ):
     if len(matrix) < 2:

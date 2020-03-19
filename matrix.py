@@ -10,13 +10,31 @@ z0  z1  ... zn
 import math
 
 def make_bezier():
-    pass
+    return [
+        [-1, 3, -3, 1],
+        [3, -6, 3, 0],
+        [-3, 3, 0, 0],
+        [1, 0, 0, 0]
+    ]
+
 
 def make_hermite():
-    pass
+    return [
+        [2, -3, 0, 1],
+        [-2, 3, 0, 0],
+        [1, -2, 1, 0],
+        [1, -1, 0, 0]
+    ]
 
 def generate_curve_coefs( p0, p1, p2, p3, t ):
-    pass
+    coefs = [[p0, p1, p2, p3]]
+    if t == 'hermite':
+        curve = make_hermite()
+    else:
+        curve = make_bezier()
+
+    matrix_mult(curve, coefs)
+    return coefs
 
 
 def make_translate( x, y, z ):
@@ -71,7 +89,7 @@ def print_matrix( matrix ):
             s+= str(matrix[c][r]) + ' '
         s+= '\n'
     print(s)
-
+    
 #turn the paramter matrix into an identity matrix
 #you may assume matrix is square
 def ident( matrix ):

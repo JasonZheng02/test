@@ -9,14 +9,20 @@ The file follows the following format:
      Any command that requires arguments must have those arguments in the second line.
      The commands are as follows:
 
+         sphere: add a sphere to the edge matrix -
+                 takes 4 arguemnts (cx, cy, cz, r)
+         torus: add a torus to the edge matrix -
+                takes 5 arguemnts (cx, cy, cz, r1, r2)
+         box: add a rectangular prism to the edge matrix -
+              takes 6 arguemnts (x, y, z, width, height, depth)
+
+
 	 circle: add a circle to the edge matrix -
 	         takes 4 arguments (cx, cy, cz, r)
 	 hermite: add a hermite curve to the edge matrix -
 	          takes 8 arguments (x0, y0, x1, y1, rx0, ry0, rx1, ry1)
 	 bezier: add a bezier curve to the edge matrix -
 	         takes 8 arguments (x0, y0, x1, y1, x2, y2, x3, y3)
-
-
          line: add a line to the edge matrix -
                takes 6 arguemnts (x0, y0, z0, x1, y1, z1)
          ident: set the transform matrix to the identity matrix -
@@ -41,12 +47,14 @@ The file follows the following format:
 
 See the file script for an example of the file format
 """
-ARG_COMMANDS = [ 'line', 'scale', 'move', 'rotate', 'save', 'circle', 'hermite', 'bezier' ]
+ARG_COMMANDS = [ 'circle', 'bezier', 'hermite', 'line', 'scale', 'move', 'rotate', 'save' , 'box', 'sphere', 'torus']
 
 def parse_file( fname, edges, transform, screen, color ):
 
     f = open(fname)
     lines = f.readlines()
+
+    step = 0.01
 
     c = 0
     while c < len(lines):
@@ -57,7 +65,22 @@ def parse_file( fname, edges, transform, screen, color ):
             c+= 1
             args = lines[c].strip().split(' ')
 
-        if line == 'line':
+        if line == 'circle':
+            #print 'CIRCLE\t' + str(args)
+            add_circle(edges,
+                       float(args[0]), float(args[1]), float(args[2]),
+                       float(args[3]), step)
+
+        elif line == 'hermite' or line == 'bezier':
+            #print 'curve\t' + line + ": " + str(args)
+            add_curve(edges,
+                      float(args[0]), float(args[1]),
+                      float(args[2]), float(args[3]),
+                      float(args[4]), float(args[5]),
+                      float(args[6]), float(args[7]),
+                      step, line)
+
+        elif line == 'line':
             #print 'LINE\t' + str(args)
 
             add_edge( edges,
@@ -101,22 +124,15 @@ def parse_file( fname, edges, transform, screen, color ):
             else:
                 save_extension(screen, args[0])
 
-        elif line == 'circle':
-            add_circle(edges, float(args[0]), float(args[1]), float(args[2]), float(args[3]), 0.001)
+	elif line == 'box':
+	    add_box(edges,
+		    float(args[0]), float(args[1]), float(args[2]),
+		    float(args[3]), float(args[4]), float(args[5]))
 
-        elif line == 'hermite':
-            add_curve(edges,
-                      float(args[0]), float(args[1]),
-                      float(args[2]), float(args[3]),
-                      float(args[4]), float(args[5]),
-                      float(args[6]), float(args[7]),
-                      .001, "hermite")
+	elif line == 'sphere':
+	    add_sphere(edges, float(args[0]), float(args[1]), float(args[2]), float(args[3]), step)
 
-        elif line == 'bezier':
-            add_curve(edges,
-                      float(args[0]), float(args[1]),
-                      float(args[2]), float(args[3]),
-                      float(args[4]), float(args[5]),
-                      float(args[6]), float(args[7]),
-                      .001, "bezier")
+	elif line == 'torus':
+	    add_torus(edges, float(args[0]), float(args[1]), float(args[2]), float(args[3]), float(args[4]), .001)
+
         c+= 1
