@@ -31,6 +31,22 @@ box
 -10 0 10 20 125 20
 pop
 pop
+#Left 2nd arm
+push
+move
+-100 -50 0
+rotate
+x -45
+box
+-40 0 40 40 100 80
+#Left 2nd lower arm
+push
+move
+-20 -100 0
+box 
+-10 0 10 20 125 20
+pop
+pop
 #RIGHT ARM
 push
 move
@@ -44,6 +60,24 @@ push
 move
 20 -100 0
 rotate
+x -20
+box
+-10 0 10 20 125 20
+pop
+pop
+#Right 2nd arm
+push 
+move
+100 -50 0
+rotate
+x -45
+box 
+0 0 40 40 100 80
+#Right 2nd lower arm
+push 
+move
+20 -100 0
+rotate 
 x -20
 box
 -10 0 10 20 125 20
